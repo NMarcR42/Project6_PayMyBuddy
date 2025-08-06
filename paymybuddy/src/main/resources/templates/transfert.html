@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Transfert - Pay My Buddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .transfer-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .transfer-form select,
+        .transfer-form input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .transfer-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .transfer-form button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead {
+            background-color: #f2f2f2;
+        }
+
+        table th, table td {
+            padding: 12px 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table td:last-child {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<section layout:fragment="content" class="container">
+
+    <form class="transfer-form" th:action="@{/transfer}" method="post">
+        <select name="receiverId" required>
+            <option value="" disabled selected>Sélectionner une relation</option>
+            <option th:each="relation : ${relations}"
+                    th:value="${relation.userId}"
+                    th:text="${relation.username}"></option>
+        </select>
+        <input type="text" name="description" placeholder="Description" required>
+        <input type="number" name="amount" placeholder="0€" min="0" step="0.01" required>
+        <button type="submit">Payer</button>
+    </form>
+	<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <h3>Mes Transactions</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Relation</th>
+            <th>Description</th>
+            <th>Montant</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="tx : ${transactions}">
+            <td th:text="${tx.receiver.username}">Relation</td>
+            <td th:text="${tx.description}">Description</td>
+            <td th:text="${#numbers.formatDecimal(tx.amount, 1, 'COMMA', 2, 'POINT')} + '€'">Montant</td>
+        </tr>
+        </tbody>
+    </table>
+
+</section>

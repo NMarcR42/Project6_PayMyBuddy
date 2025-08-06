@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>S'inscrire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .signup-box {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+
+        form div {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            background-color: orange;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: darkorange;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-box">
+		<div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+		<div th:if="${success}" class="flash-message" th:text="${success}"></div>
+        <form th:action="@{/signup}" method="post" th:object="${userSignupDTO}">
+            <div>
+                <label>Username :</label>
+                <input th:field="*{username}" required/>
+				<div th:if="${#fields.hasErrors('username')}" class="error" th:errors="*{username}"></div>
+            </div>
+            <div>
+                <label>Email :</label>
+                <input type="email" th:field="*{email}" required/>
+				<div th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></div>
+            </div>
+            <div>
+                <label>Mot de passe :</label>
+                <input type="password" th:field="*{password}" required/>
+				<div th:if="${#fields.hasErrors('password')}" class="error" th:errors="*{password}"></div>
+            </div>
+            <div>
+                <button type="submit">S'inscrire</button>
+            </div>
+        </form>
+        <p>Déjà inscrit ? <a th:href="@{/login}">Se connecter</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layouts/base}">
+  <head>
+    <title>Profil</title>
+    <style>
+      .profile-container {
+        max-width: 400px;
+        margin: 50px auto;
+        border: 1px solid #ccc;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      .profile-row {
+        margin-bottom: 15px;
+      }
+      .profile-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+      }
+      .btn-orange {
+        background-color: orange;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        float: right;
+        margin-top: 10px;
+      }
+      .btn-orange:hover {
+        background-color: darkorange;
+      }
+    </style>
+  </head>
+  <body>
+	<section layout:fragment="content">
+	    <div class="profile-container">
+	      <div class="profile-row">
+	        <label class="profile-label">Username</label>
+	        <span>@<span th:text="${user.username}">username</span></span>
+	      </div>
+
+	      <div class="profile-row">
+	        <label class="profile-label">Mail</label>
+	        <span th:text="${user.email}">email@example.com</span>
+	      </div>
+
+	      <div class="profile-row">
+	        <label class="profile-label">Mot de passe</label>
+	        <input type="password" value="********" readonly disabled />
+	      </div>
+
+		  <!-- Formulaire de modification du mot de passe -->
+		        <form th:action="@{/users/update-password}" method="post" class="profile-row">
+		          <label class="profile-label">Nouveau mot de passe</label>
+		          <input type="password" name="newPassword" required minlength="6" />
+		          <button type="submit" class="btn-orange">Modifier</button>
+		        </form>
+
+		        <!-- Messages de retour -->
+		        <div th:if="${passwordMessage}" style="color:green;">
+		          <p th:text="${passwordMessage}"></p>
+		        </div>
+		        <div th:if="${passwordError}" style="color:red;">
+		          <p th:text="${passwordError}"></p>
+		        </div>
+	    </div>
+	  </section>
+  </body>
+</html>

@@ -7,6 +7,8 @@ import com.paymybuddy.paymybuddy.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Service
@@ -21,27 +23,27 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction executeTransfer(Long senderId, Long receiverId, Double amount, String description) {
+    public Transaction executeTransfer(int senderId, int receiverId, BigDecimal amount, String description) {
         User sender = userRepo.findById(senderId)
             .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
         User receiver = userRepo.findById(receiverId)
             .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
 
-        if (sender.getBalance() < amount) {
+        // Vérification solde insuffisant
+        if (sender.getBalance().compareTo(amount) < 0) {
             throw new IllegalStateException("Solde insuffisant");
         }
-        // Calcul des frais pour la monétisation (0,5 %)
-        double fee = amount * 0.005;
-        double total = amount + fee;
 
-        sender.setBalance(sender.getBalance() - total);
-        receiver.setBalance(receiver.getBalance() + amount);
+        // Calcul des frais 0.5%
+        BigDecimal fee = amount.multiply(new BigDecimal("0.005")).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal total = amount.add(fee);
 
-        // Sauvegarde des profils utilisateurs modifiés
+        sender.setBalance(sender.getBalance().subtract(total));
+        receiver.setBalance(receiver.getBalance().add(amount));
+
         userRepo.save(sender);
         userRepo.save(receiver);
 
-        // Création de l'entité transaction
         Transaction tx = new Transaction();
         tx.setSender(sender);
         tx.setReceiver(receiver);
@@ -50,7 +52,10 @@ public class TransactionService {
         tx.setDescription(description);
         tx.setStatus("COMPLETED");
         tx.setCreatedAt(LocalDateTime.now());
+        
+        
 
         return txRepo.save(tx);
+        
     }
 }

@@ -2,6 +2,7 @@ package com.paymybuddy.paymybuddy.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,16 +10,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserSignupDTO {
-    @NotBlank
+	@NotBlank(message = "Username obligatoire")
     @Size(min = 3, max = 50)
     private String username;
 
-    @Email
-    @NotBlank
+    @Email(message = "Email non valide")
+    @NotBlank(message = "Email obligatoire")
+    @Pattern(regexp = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "Format d'email non conforme")
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 100)
+    @Size(min = 6, max = 100, message = "Le mot de passe doit contenir au moins 6 caractères")
     private String password;
     
 	public UserSignupDTO(@NotBlank @Size(min = 3, max = 50) String username, @Email @NotBlank String email,
@@ -52,5 +54,5 @@ public class UserSignupDTO {
 		this.password = password;
 	}
     
-    
+	public UserSignupDTO() {}
 }

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8" />
+  <title layout:title-pattern="$CONTENT_TITLE - Pay My Buddy">Pay My Buddy</title>
+</head>
+<body>
+  <header>
+    <h1>Pay My Buddy</h1>
+    <nav>
+      <a th:href="@{/home}">Accueil</a>
+      <a th:href="@{/transfer}">Transfert</a>
+      <a th:href="@{/users/profil}">Profil</a>
+	  <a th:href="@{/users/relation/add}">Ajouter relation</a>
+      <a th:href="@{/logout}" onclick="event.preventDefault();document.logoutForm.submit();">Déconnexion</a>
+      <form name="logoutForm" th:action="@{/logout}" method="post" style="display:none"></form>
+    </nav>
+  </header>
+
+  <main>
+    <section layout:fragment="content">
+      <!-- Index contenu de chaque page-->
+    </section>
+  </main>
+</body>
+</html>
