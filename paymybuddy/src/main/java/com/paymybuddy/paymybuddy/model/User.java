@@ -3,6 +3,7 @@ package com.paymybuddy.paymybuddy.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,13 +32,13 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "connection_id")
     )
-    private Set<User> connections;
+    private Set<User> connections = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
-    private Set<Transaction> sentTransactions;
+    private Set<Transaction> sentTransactions = new HashSet<>();
 
     @OneToMany(mappedBy = "receiver")
-    private Set<Transaction> receivedTransactions;
+    private Set<Transaction> receivedTransactions = new HashSet<>();
 
 	
 

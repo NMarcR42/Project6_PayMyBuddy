@@ -4,15 +4,56 @@
 <head>
   <meta charset="UTF-8" />
   <title layout:title-pattern="$CONTENT_TITLE - Pay My Buddy">Pay My Buddy</title>
+  <style>
+    /* Styles du header */
+    header {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Logo / titre */
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    /* Menu */
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      font-size: 15px;
+      color: black;
+    }
+
+    /* Lien actif */
+    nav a.active {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    /* Hover */
+    nav a:hover {
+      color: #007bff;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Pay My Buddy</h1>
-    <nav>
-      <a th:href="@{/home}">Accueil</a>
-      <a th:href="@{/transfer}">Transfert</a>
-      <a th:href="@{/users/profil}">Profil</a>
-	  <a th:href="@{/users/relation/add}">Ajouter relation</a>
+    <nav style="text-align: right;">
+      <a th:href="@{/home}" th:classappend="${page} != null and ${page} == 'home' ? 'active' : ''">Accueil</a>
+	  <a th:href="@{/transfer}" th:classappend="${page} != null and ${page} == 'transfer' ? 'active' : ''">Transfert</a>
+      <a th:href="@{/users/profil}" th:classappend="${page} != null and ${page} == 'profil' ? 'active' : ''">Profil</a>
+	  <a th:href="@{/users/relation/add}" th:classappend="${page} != null and ${page} == 'addRelation' ? 'active' : ''">Ajouter relation</a>
       <a th:href="@{/logout}" onclick="event.preventDefault();document.logoutForm.submit();">Déconnexion</a>
       <form name="logoutForm" th:action="@{/logout}" method="post" style="display:none"></form>
     </nav>

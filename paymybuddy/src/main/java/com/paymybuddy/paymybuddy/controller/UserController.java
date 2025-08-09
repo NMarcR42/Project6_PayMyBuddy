@@ -57,6 +57,7 @@ public class UserController {
     
     @GetMapping("/profil")
     public String showProfile(Model model, Principal principal) {
+    	model.addAttribute("page", "profil");
         Optional<User> userOpt = userRepo.findByEmail(principal.getName());
         if (userOpt.isEmpty()) {
             return "redirect:/login";
@@ -66,8 +67,9 @@ public class UserController {
     }
     
     @GetMapping("/relation/add")
-    public String showAddRelationPage() {
-        return "ajoutRelation";  // fichier html
+    public String showAddRelationPage(Model model) {
+        model.addAttribute("page", "ajoutRelation");
+        return "ajoutRelation"; // fichier html
     }
     
     @PostMapping("/relation/add")

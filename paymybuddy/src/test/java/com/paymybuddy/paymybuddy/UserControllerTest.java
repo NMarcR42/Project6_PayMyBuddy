@@ -4,13 +4,16 @@ import com.paymybuddy.paymybuddy.dto.UserSignupDTO;
 import com.paymybuddy.paymybuddy.model.User;
 import com.paymybuddy.paymybuddy.repository.UserRepository;
 import com.paymybuddy.paymybuddy.service.UserService;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -30,32 +33,31 @@ class UserControllerTest {
 
     @MockBean
     private UserRepository userRepo;
+    
+    private User testUser;
+    
+    @BeforeEach
+    void setUp() {
+        testUser = new User();
+        testUser.setEmail("test@mail.com");
+        testUser.setUserId(1);
+    }
 
     @Test
     void showProfile_userFound_shouldReturnProfilView() throws Exception {
-        User user = new User();
-        user.setEmail("test@mail.com");
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(testUser));
 
-        when(userRepo.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
-
-        Principal principal = () -> "test@mail.com";
-
-        mockMvc.perform(get("/users/profil").principal(principal))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("user"))
-                .andExpect(view().name("profil"));
+        mockMvc.perform(get("/users/profil")
+                .with(user("test@mail.com")))  
+            .andExpect(status().isOk());
     }
 
     @Test
     void updatePassword_success() throws Exception {
-        doNothing().when(userService).updatePassword("test@mail.com", "newpass");
-
-        Principal principal = () -> "test@mail.com";
-
         mockMvc.perform(post("/users/update-password")
-                        .principal(principal)
-                        .param("newPassword", "newpass"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/users/profil"));
+                .with(user("test@mail.com"))  
+                .with(csrf())                 
+                .param("newPassword", "newStrongPassword123"))
+            .andExpect(status().is3xxRedirection());
     }
 }

@@ -12,9 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import org.springframework.security.test.context.support.WithMockUser;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -40,38 +43,49 @@ class TransactionControllerTest {
 
     @Test
     void showTransferPage_shouldReturnTransfertView() throws Exception {
-        User user = new User();
-        user.setEmail("test@mail.com");
-        user.setConnections(Collections.emptySet());
+        User currentUser = new User();
+        currentUser.setUserId(1);
+        currentUser.setEmail("test@mail.com");
+       
+        
+        when(userRepo.findByEmail("test@mail.com")).thenReturn(Optional.of(currentUser));
+        when(txRepo.findBySender(currentUser)).thenReturn(new ArrayList<>());
 
-        when(userRepo.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
-        when(txRepo.findBySender(user)).thenReturn(Collections.emptyList());
-
-        Principal principal = () -> "test@mail.com";
-
-        mockMvc.perform(get("/transfer").principal(principal))
+        mockMvc.perform(get("/transfer")
+                        .with(user("test@mail.com").roles("USER")))
                 .andExpect(status().isOk())
+                .andExpect(view().name("transfert"))  
                 .andExpect(model().attributeExists("currentUser"))
-                .andExpect(view().name("transfert"));
+                .andExpect(model().attributeExists("relations"))
+                .andExpect(model().attributeExists("transactions"));
     }
-
+    @WithMockUser(username="test@mail.com")
     @Test
     void handleTransfer_successRedirect() throws Exception {
         User sender = new User();
         sender.setUserId(1);
         sender.setEmail("test@mail.com");
+        sender.setBalance(new BigDecimal("1000"));
 
         when(userRepo.findByEmail("test@mail.com")).thenReturn(Optional.of(sender));
-        doNothing().when(txService).executeTransfer(1, 2, BigDecimal.valueOf(100), "test");
 
-        Principal principal = () -> "test@mail.com";
+        Transaction fakeTransaction = new Transaction();
+
+        when(txService.executeTransfer(
+            eq(1),
+            eq(2),
+            eq(new BigDecimal("100")),
+            eq("test description")
+        )).thenReturn(fakeTransaction);
 
         mockMvc.perform(post("/transfer")
-                        .principal(principal)
-                        .param("receiverId", "2")
-                        .param("amount", "100")
-                        .param("description", "test"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/transfer?success=Transfert%20réussi"));
+                .with(user("test@mail.com"))  
+                .with(csrf())                 
+                .param("receiverId", "2")
+                .param("amount", "100")
+                .param("description", "test description"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/transfer?success=Transfert%20réussi"));
     }
+
 }
